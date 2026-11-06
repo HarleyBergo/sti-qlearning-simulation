@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador STI - Q-Learning (TCC Pós-IA)</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js para renderização de curvas de treinamento -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Simulador de Sistema Tutor Inteligente (Q-Learning)</h1>
+    <p>Modelo Adaptativo baseado em Processos de Decisão Markovianos | TCC Pós-Graduação em Inteligência Artificial</p>
+  </header>
+
+  <main class="container">
+    <section class="controls">
+      <h2>Parâmetros da Simulação</h2>
+      <div class="control-group">
+        <label for="episodes">Episódios:</label>
+        <input type="number" id="episodes" value="500" min="50" max="2000" step="50">
+      </div>
+      <div class="control-group">
+        <label for="alpha">Taxa de Aprendizado (&alpha;):</label>
+        <input type="number" id="alpha" value="0.20" step="0.05" min="0.01" max="1.00">
+      </div>
+      <div class="control-group">
+        <label for="gamma">Fator de Desconto (&gamma;):</label>
+        <input type="number" id="gamma" value="0.90" step="0.01" min="0.10" max="0.99">
+      </div>
+      <button id="runBtn" onclick="runSimulation()">Executar Simulação</button>
+      <div id="status" class="status">Pronto para rodar. Clique no botão acima para iniciar a simulação.</div>
+    </section>
+
+    <section class="charts-grid">
+      <div class="chart-card">
+        <h3>Curva de Recompensa Média por Passo</h3>
+        <canvas id="rewardChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Evolução do Erro TD Médio</h3>
+        <canvas id="tdErrorChart"></canvas>
+      </div>
+    </section>
+
+    <section class="results">
+      <h2>Tabela Q Convergida ($Q^*(s, a)$)</h2>
+      <div class="table-responsive">
+        <table id="qTableDisplay">
+          <!-- Tabela gerada dinamicamente via JS -->
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="qlearning.js"></script>
+  <script>
+    let rewardChart, tdErrorChart;
+
+    function runSimulation() {
+      const episodes = parseInt(document.getElementById('episodes').value, 10);
+      const alpha = parseFloat(document.getElementById('alpha').value);
+      const gamma = parseFloat(document.getElementById('gamma').value);
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerText = `Simulando ${episodes} episódios... Aguarde.`;
+
+      // Aguarda tick do DOM para atualizar mensagem de status antes do loop
+      setTimeout(() => {
+        const env = new StudentEnvironment();
+        const agent = new QLearningAgent(alpha, gamma);
+
+        const rewardData = [];
+        const tdErrorData = [];
+        const labels = [];
+
+        for (let ep = 1; ep <= episodes; ep++) {
+          let s = env.reset();
+          let epReward = 0;
+          let epError = 0;
+
+          for (let step = 0; step < 20; step++) {
+            const a = agent.chooseAction(s);
+            const { nextState, reward } = env.step(a);
+            const err = agent.update(s, a, reward, nextState);
+
+            epReward += reward;
+            epError += err;
+            s = nextState;
+          }
+
+          agent.decayEpsilon();
+
+          if (ep % 5 === 0 || ep === 1 || ep === episodes) {
+            labels.push(ep);
+            rewardData.push(Number((epReward / 20).toFixed(2)));
+            tdErrorData.push(Number((epError / 20).toFixed(2)));
+          }
+        }
+
+        const finalReward = rewardData[rewardData.length - 1];
+        statusDiv.innerText = `Simulação concluída com sucesso! Recompensa final média por passo: ${finalReward}`;
+
+        renderCharts(labels, rewardData, tdErrorData);
+        renderTable(agent.qTable, env.states);
+      }, 50);
+    }
+
+    function renderCharts(labels, rewards, errors) {
+      if (rewardChart) rewardChart.destroy();
+      if (tdErrorChart) tdErrorChart.destroy();
+
+      const ctxR = document.getElementById('rewardChart').getContext('2d');
+      rewardChart = new Chart(ctxR, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Recompensa Média',
+            data: rewards,
+            borderColor: '#2b6cb0',
+            backgroundColor: 'rgba(43, 108, 176, 0.1)',
+            fill: true,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: true, text: 'Episódio' } },
+            y: { title: { display: true, text: 'Recompensa Média por Passo' } }
+          }
+        }
+      });
+
+      const ctxE = document.getElementById('tdErrorChart').getContext('2d');
+      tdErrorChart = new Chart(ctxE, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Erro TD Médio',
+            data: errors,
+            borderColor: '#c53030',
+            backgroundColor: 'rgba(197, 48, 48, 0.1)',
+            fill: true,
+            tension: 0.2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: true, text: 'Episódio' } },
+            y: { title: { display: true, text: 'Erro TD Absoluto Médio' } }
+          }
+        }
+      });
+    }
+
+    function renderTable(qTable, states) {
+      const table = document.getElementById('qTableDisplay');
+      let html = '<thead><tr><th>Estado \\ Ação</th>';
+      for (let i = 0; i < 10; i++) {
+        html += `<th>A${i}</th>`;
+      }
+      html += '<th>Ação Ótima</th></tr></thead><tbody>';
+
+      states.forEach((stateName, s) => {
+        html += `<tr><td><strong>${stateName}</strong></td>`;
+        const maxVal = Math.max(...qTable[s]);
+        const bestAction = qTable[s].indexOf(maxVal);
+
+        for (let a = 0; a < 10; a++) {
+          const val = qTable[s][a].toFixed(1);
+          const isMax = (a === bestAction) ? 'class="highlight"' : '';
+          html += `<td ${isMax}>${val}</td>`;
+        }
+
+        html += `<td class="highlight"><strong>A${bestAction}</strong></td></tr>`;
+      });
+
+      html += '</tbody>';
+      table.innerHTML = html;
+    }
+
+    // Executa simulação inicial automaticamente ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      runSimulation();
+    });
+  </script>
+</body>
+</html>
