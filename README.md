@@ -94,7 +94,7 @@ Ao longo de 500 episódios simulados (20 passos por sessão), o agente exibe con
 O projeto incorpora os preceitos de sustentação e governança discutidos na monografia:
 1. **Transparência e Explicabilidade (XAI):** A arquitetura tabular $5 \times 10$ confere total interpretabilidade às decisões pedagógicas tomadas pela IA, permitindo auditoria pedagógica em tempo real sem opacidade de "caixa-preta".
 2. **Mitigação de Riscos de Exploração (*Warm Start*):** Destaca-se a obrigatoriedade de treinamento prévio e supervisão pedagógica antes de testes em salas reais, evitando submeter discentes reais a estratégias pedagógicas aleatórias.
-3. **Engenharia de MLOps:** Versionamento contínuo de matrizes e parâmetros via Git, integração com GitHub Actions para validação e deploy automatizado para GitHub Pages.
+3. **Engenharia de MLOps:** Versionamento contínuo de matrizes e parâmetros via Git com publicação automatizada diretamente via GitHub Pages na branch `main`.
 
 ---
 
@@ -102,14 +102,12 @@ O projeto incorpora os preceitos de sustentação e governança discutidos na mo
 
 ```text
 sti-qlearning-simulation/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml      # Pipeline automatizado de deploy no GitHub Pages
 ├── index.html              # Interface gráfica do dashboard e painéis de controle
 ├── style.css               # Folha de estilos e formatação visual responsiva
 ├── qlearning.js            # Implementação formal do ambiente PDM e do agente Q-Learning
 ├── README.md               # Documentação técnica e científica do projeto
-└── LICENSE                 # Licença MIT de código aberto
+├── LICENSE                 # Licença MIT de código aberto
+└── .gitignore              # Regras de exclusão do Git
 ```
 
 ---
