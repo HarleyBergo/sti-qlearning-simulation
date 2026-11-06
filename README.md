@@ -1,14 +1,14 @@
 # Sistema Tutor Inteligente Adaptativo com Aprendizado por Reforço (Q-Learning)
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://SEU_USUARIO.github.io/sti-qlearning-simulation/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://harleybergo.github.io/sti-qlearning-simulation/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: Concluído](https://img.shields.io/badge/Status-Concluído-success)](https://github.com/SEU_USUARIO/sti-qlearning-simulation)
+[![Status: Concluído](https://img.shields.io/badge/Status-Concluído-success)](https://github.com/HarleyBergo/sti-qlearning-simulation)
 
 Repositório oficial da simulação computacional desenvolvida no âmbito do Trabalho de Conclusão de Curso (TCC).
 
 * **Título do Trabalho:** *IA na Educação: Como o Aprendizado por Reforço (Reinforcement Learning) Pode Criar Sistemas Tutores Inteligentes Personalizados*
 * **Autor:** Harley Augusto Bergo
-* **Ambiente de Simulação Online:** [https://SEU_USUARIO.github.io/sti-qlearning-simulation/](https://SEU_USUARIO.github.io/sti-qlearning-simulation/)
+* **Ambiente de Simulação Online:** [https://harleybergo.github.io/sti-qlearning-simulation/](https://harleybergo.github.io/sti-qlearning-simulation/)
 
 ---
 
@@ -125,7 +125,7 @@ sti-qlearning-simulation/
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/SEU_USUARIO/sti-qlearning-simulation.git
+   git clone https://github.com/HarleyBergo/sti-qlearning-simulation.git
    cd sti-qlearning-simulation
    ```
 
